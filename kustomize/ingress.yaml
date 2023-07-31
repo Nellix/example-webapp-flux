@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flex-ingress
+  metadata: flex
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: flex.netreply
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: flex
+            port:
+              number: 9898
+      - path: /grpc
+        pathType: Prefix
+        backend:
+          service:
+            name: flex
+            port:
+              number: 9999

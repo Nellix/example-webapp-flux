@@ -4,7 +4,7 @@ metadata:
   name: flex
   namespace: flex
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: flex
   ports:
