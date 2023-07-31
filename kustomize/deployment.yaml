@@ -43,8 +43,9 @@ spec:
         - --grpc-port=9999
         - --grpc-service-name=podinfo
         - --level=info
-        - --random-delay=false
-        - --random-error=false
+        # - --random-delay=false
+        # - --random-error=false
+        - --cache-server=redis:6379
         env:
         - name: PODINFO_UI_COLOR
           value: "#34577c"
