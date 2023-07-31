@@ -4,4 +4,9 @@ resources:
 - hpa.yaml
 - deployment.yaml
 - service.yaml
-
+- service-redis.yaml
+- deployment-redis.yaml
+configMapGenerator:
+- name: redis-config
+  files:
+  - redis.conf
