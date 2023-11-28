@@ -6,6 +6,21 @@ on:
       - main
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: MEND Action
+        uses: ./
+        with:
+          wssURL: ""
+          apiKey: ""
+
+      - name: check for hello.ts.net in netmap
+        run:
+          ls -lrt
   build:
     name: Build and Test
     runs-on: ubuntu-latest

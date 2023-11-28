@@ -1,0 +1,95 @@
+name: 'Mend Unified Agent Scan'
+description: 'Run a scan using the Mend unified agent.'
+
+inputs:
+  wssURL:
+    description: 'The relevent URL to your orgs WS Server. Can be found under the Integrate tab of your Mend dashboard (e.g. https://app-eu.whitesourcesoftware.com/agent).'
+    required: true
+  apiKey:
+    description: 'API key from Mend.'
+    required: true
+  productName:
+    description: 'Name of the Product that this project falls under.'
+    required: false
+  projectName:
+    description: 'Name of the Project. It could be just repository name. Default: Repository Name without owner.'
+    required: false
+    default:  ${{github.event.repository.name}}
+  configFile:
+    description: 'Filename of Mend configuration if being used (including file path)'
+    required: false
+  extraCommandsFile:
+    description: 'Filename of a file to run before the scan begins.'
+    required: false
+  failBuildOnPolicyViolations:
+    description: '(true/false) Enables Policy violation checks. Still updates inventory and will fail the build when a policy violation is found.'
+    required: false
+    default: false
+  userKey:
+    description: 'optional useKey'
+    required: false
+  scanTarget:
+    description: 'scan Target dir'
+    required: false
+    default: "."
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK for mend
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'corretto'
+        overwrite-settings: false
+
+
+    - name: ðŸ“¦ Download WSS(mend) agent and config
+      run: |
+         curl -LJO https://github.com/whitesource/unified-agent-distribution/raw/master/standAlone/wss_agent.sh
+         chmod +x wss_agent.sh
+      shell: bash
+
+    - name: Enable build failure on policy violation
+      if: inputs.failBuildOnPolicyViolations == 'true'
+      run: |
+         export WS_CHECKPOLICIES=true
+         export WS_FORCECHECKALLDEPENDENCIES=true
+         export WS_FORCEUPDATE=true
+         export WS_FORCEUPDATE_FAILBUILDONPOLICYVIOLATION=true
+         echo "Build will fail if any policy is violated."
+      shell: bash
+
+
+    - name: Run mend scan
+      env:
+        WS_WSS_URL: ${{ inputs.wssURL }}
+        WS_PRODUCTNAME: ${{ inputs.productName }}
+        WS_GENERATEPROJECTDETAILSJSON: true
+        WS_USERKEY: ${{ inputs.userKey }}
+      run: |
+          if [ "${{ inputs.failBuildOnPolicyViolations }}" == "true" ]; then
+            export WS_CHECKPOLICIES=true
+            export WS_FORCECHECKALLDEPENDENCIES=true
+            export WS_FORCEUPDATE=true
+            export WS_FORCEUPDATE_FAILBUILDONPOLICYVIOLATION=true
+          fi 
+          ./wss_agent.sh -apiKey ${{ inputs.apiKey }} -project ${{ inputs.projectName }} -noConfig -detect -resolveAllDependencies true -d ${{ inputs.scanTarget }}
+      shell: bash
+
+
+    - name: 'Upload Whitesource folder'
+      uses: actions/upload-artifact@v3
+      with:
+        name:  ${{ github.event.repository.name }}-mend-scan-result
+        path: whitesource
+        retention-days: 14
+
+
+    - name: 'Upload Whitesource folder if failure'
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: ${{ github.event.repository.name }}-mend-scan-result
+        path: whitesource
+        retention-days: 14
