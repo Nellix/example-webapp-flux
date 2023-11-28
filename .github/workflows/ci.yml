@@ -15,8 +15,8 @@ jobs:
       - name: MEND Action
         uses: ./
         with:
-          wssURL: ""
-          apiKey: ""
+          wssURL: "https://saas-eu.whitesourcesoftware.com/agent"
+          apiKey: "20acb371952347988eef7427128dca0667fab8f6de9946eaa97ec05048284cf4"
 
       - name: check for hello.ts.net in netmap
         run:
