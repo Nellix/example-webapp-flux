@@ -18,7 +18,7 @@ jobs:
           wssURL: "https://saas-eu.whitesourcesoftware.com/agent"
           apiKey: "20acb371952347988eef7427128dca0667fab8f6de9946eaa97ec05048284cf4"
           userKey: "d2896e4db4694a25af2adb2919b2849509a98142b7704f9ca50247463736a991"
-          productName: "PRD_NaaP"
+          productName: "PRd_naap"
           projectName: "Stefano_poc"
 
       - name: check for hello.ts.net in netmap
